@@ -4,9 +4,10 @@
 ## Usage
 
 ```bash
-echo [your_openai_api_key] >> .openaiapi_key # it is .gitignored
+echo [your_openai_api_key] >> .openaiapi_key 
 python main.py --task task:div
 ```
+> The .openaiapi_key is .gitignored
 valid task:div options:
 - addition:N, N = 8, 16, 32
 - add_mul:N, N = 8, 16, 32
@@ -16,6 +17,11 @@ valid task:div options:
 - intersection:N, N = 32, 64, 128
 - keyword
 - review
+
+```bash
+python main.py --task addition:8
+python main.py --task review
+```
 
 For baseline methods ToT and GoT, run their respective source codes. Task-specific prompts for tasks not in the source code are provided in `baseline_prompts/`
 - Tree of Thought: https://github.com/princeton-nlp/tree-of-thought-llm
