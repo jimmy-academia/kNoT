@@ -65,8 +65,8 @@ Task_Specific_Example = {
 (1)=LLM("Check the following review is Positive or Negative: {(input)}[1].")
 (2)=LLM("Check the following review is Positive or Negative: {(input)}[2].")
 ...
-(length-1)=LLM("Check the following review is Positive or Negative: {(input)}[length-1].")
-(length)=LLM("[{(0)}, {(1)}, {(2)}, {(3)}, {(4)}, {(5)},.... ,{(length-1)}], output the number of Positive.")""",
+(9)=LLM("Check the following review is Positive or Negative: {(input)}[length-1].")
+(10)=LLM("[{(0)}, {(1)}, {(2)}, {(3)}, {(4)}, {(5)},.... ,{(length-1)}], output the number of Positive.")""",
     'large_digit':"""
 ```example for length = 32
 (0)=LLM("Split "{(input)}" by + and output in string format in an array.")
@@ -90,10 +90,10 @@ Given the following question:
 %s
 The Input section is the input query. The Context section is the goal we want to achieve.
 
-Please use your knowledge to create a solution by step-by-step manner without any numbers.
+Please use your knowledge to create a solution plan in a step-by-step manner without any numbers.
 Every step need to be as easy as possible.
 Don't use loop or pattern to reduce step.
-Don't use any numbers in the input. Use first number, second number,....
+Don't use any numbers/sentence in the input. Use first number/sentence, second number/sentence,....
 Use Step0, Step1, Step2 to represent result. The result cannot have any numbers.
 """
 
@@ -123,27 +123,49 @@ The Input section is the input query. The Context section is the goal we want to
 
     def solve_query(self, query):
         goal_prompt = f'Input: {query}\nContext: {self.tsp_context}'
-        knowledge = self.llm_answer(self.knowledge_prompt%goal_prompt, True)
-        script_prompt = self.script_prompt%(self.tsp_example, knowledge, goal_prompt)
+        self.knowledge = self.llm_answer(self.knowledge_prompt%goal_prompt, True)
+        script_prompt = self.script_prompt%(self.tsp_example, self.knowledge, goal_prompt)
         # script_prompt = self.script_prompt%(goal_prompt, knowledge, self.tsp_example)
-        script = self.llm_answer(script_prompt, True)
+        self.script = self.llm_answer(script_prompt, True)
 
-        cache = {}
-        for step in script.split('\n'):
+
+        # print(query)
+        # myprint(self.tsp_context)
+        # myprint(self.tsp_example)
+        # myprint('============= LLM solution plan ==========')
+        # myprint(self.knowledge)
+        # myprint('============= LWT-formatted script ==========')
+        # myprint(self.script)
+        # input('pause')
+
+
+        self.cache = {}
+        for step in self.script.split('\n'):
             if '=LLM(' not in step:
                 continue
-            index = re.search(r'\((\d+)\)=LLM', step).group(1)
+            try:
+                index = re.search(r'\((\d+)\)=LLM', step).group(1)
+            except:
+                pass
             instruction = re.search(r'LLM\("(.*?)"\)', step).group(1)
-            _sub = partial(_format, cache=cache, query=query)
+            # print(instruction)
+            # input()
+            _sub = partial(_format, cache=self.cache, query=query)
             try:
                 instruction = re.sub(r'\{\((\w+)\)\}(?:\[(\d+)\])?', _sub, instruction)
             except:
-                check()
+                pass
+
+            # print(instruction)
+            # input()
+            
             output = self.llm_answer(instruction)
+            # print(output)
+            # input()
             try:
-                cache[index] = ast.literal_eval(output)
+                self.cache[index] = ast.literal_eval(output)
             except:
-                cache[index] = output
+                self.cache[index] = output
 
         logging.info(f'>>>>>>>>>>>> final result: {output} <<<<<<<<<<<<<')
         return output
@@ -159,3 +181,12 @@ def _format(match, cache, query):
         return str(cache[key])
 
 
+def myprint(stuff):
+    stuff = stuff.replace('("', '(``')
+
+    # Replace { with \{
+    stuff = stuff.replace('{', '\\{')
+
+    # Replace } with \}
+    stuff = stuff.replace('}', '\\}')
+    print(stuff)

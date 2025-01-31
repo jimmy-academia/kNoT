@@ -20,7 +20,7 @@ def set_arguments():
     parser.add_argument('--ckpt', type=str, default='ckpt')
 
     # Task
-    parser.add_argument('--task', type=str, default='addition:[8, 16, 32]')
+    parser.add_argument('--task', type=str, default='addition:8')
 
     args = parser.parse_args()
     args.task, args.div = (args.task.split(':') + [None])[:2]
@@ -32,13 +32,13 @@ def main():
     set_seeds(args.seed)
     set_verbose(args.verbose)
 
-    args.record_path = Path(f'output/{args.scheme}_{args.task}.json')
+    Path('output').mkdir(exist_ok=True)
+    args.record_path = Path(f'output/{args.task}.json')
     if args.record_path.exists() and not args.overwrite:
         logging.info(f'{args.record_path} exists')
         return
 
-    planner_info = f'{args.planner_llm} + ' if args.scheme == 'knot' else ''
-    logging.info(f'== running exp: {args.scheme} on {args.task} with {planner_info}{args.worker_llm}')
+    logging.info(f'running kNoT on {args.task} with {args.planner_llm} + {args.worker_llm}')
 
     task_loader = get_task_loader(args)
     Scheme = setup_scheme(args, task_loader) # set up scheme for task

@@ -1,7 +1,9 @@
+import ast
 import openai
 import logging
 from collections import defaultdict
 from utils import readf, user_struct, system_struct, dumpj
+from debug import *
 
 class BaseScheme(object):
     def __init__(self, args, task_loader):
@@ -24,13 +26,19 @@ class BaseScheme(object):
         for row in self.task_loader:
 
             if self.args.task == 'intersection':
-                answer, set1, set2 = row
+                set1, set2, answer = row
                 query = f"Set1 is {set1}. Set2 is {set2}."
-            elif self.args.task == 'keyword':
-                query, answer, __, __ = row
             else:
                 query, answer = row
+
             output = self.solve_query(query)
+
+            if self.args.task == 'arithmetic':
+                answer = float(answer)
+                output = float(output)
+            elif self.args.task == 'review':
+                query = ast.literal_eval(query)
+            
             results['output'].append(output)
             results['answer'].append(answer)
             correct += int(output == answer)
