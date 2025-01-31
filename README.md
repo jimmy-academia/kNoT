@@ -8,7 +8,8 @@ echo [your_openai_api_key] >> .openaiapi_key
 python main.py --task task:div
 ```
 > The .openaiapi_key is .gitignored
-valid task:div options:
+
+### valid task:div options:
 - addition:N, N = 8, 16, 32
 - add_mul:N, N = 8, 16, 32
 - arithmetic:N, N = 8, 16, 32
