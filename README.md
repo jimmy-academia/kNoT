@@ -1,6 +1,7 @@
 # kNoT
 > source code for ICML submission #2446
-> anonymized github link:  https://anonymous.4open.science/r/kNoT-F4E5
+
+- anonymized github link:  https://anonymous.4open.science/r/kNoT-F4E5
 
 ## Usage
 
